@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080612">
+    <title>Intro to Computing: Information & Digital Society</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B0914',
+                            card: '#161224',
+                            purple: '#8B5CF6',
+                            magenta: '#EC4899',
+                            emerald: '#10B981',
+                            violet: '#6366F1',
+                            accent: '#C084FC'
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+                        'spin-slow': 'spin 12s linear infinite'
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '0.4', filter: 'blur(20px)' },
+                            '50%': { opacity: '0.8', filter: 'blur(30px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        html { scroll-padding-top: 5.5rem; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #080612;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass-card {
+            background: rgba(22, 18, 36, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-card-hover:hover {
+            transform: translateY(-5px);
+            border-color: rgba(192, 132, 252, 0.3);
+            box-shadow: 0 15px 35px -10px rgba(139, 92, 246, 0.25);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #F472B6 0%, #A855F7 50%, #6366F1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #080612; }
+        ::-webkit-scrollbar-thumb { background: #2A2438; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }
+
+        /* ================= NAVIGATION ================= */
+        .glass-nav {
+            background: rgba(8, 6, 18, 0.72);
+            backdrop-filter: blur(22px) saturate(160%);
+            -webkit-backdrop-filter: blur(22px) saturate(160%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            transition: background .3s, box-shadow .3s;
+        }
+        .glass-nav.scrolled {
+            background: rgba(8, 6, 18, 0.92);
+            box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.35);
+        }
+        #scroll-progress {
+            position: absolute; left: 0; bottom: -1px; height: 3px; width: 0%;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899, #FBBF24);
+            box-shadow: 0 0 12px rgba(236, 72, 153, 0.8);
+            transition: width .1s linear;
+        }
+        .nav-link {
+            position: relative;
+            padding: .5rem 1rem;
+            border-radius: 9999px;
+            font-size: .75rem;
+            font-weight: 600;
+            color: #d1d5db;
+            transition: color .25s, background .25s, transform .25s;
+            white-space: nowrap;
+        }
+        .nav-link:hover { color: #fff; background: rgba(255,255,255,.08); transform: translateY(-1px); }
+        .nav-link.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(139,92,246,.55), rgba(236,72,153,.55));
+            box-shadow: 0 0 18px rgba(139,92,246,.45), inset 0 0 0 1px rgba(255,255,255,.15);
+        }
+        .logo-ring { animation: logoPulse 3s ease-in-out infinite; }
+        @keyframes logoPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(139,92,246,.5); }
+            50% { box-shadow: 0 0 0 8px rgba(139,92,246,0); }
+        }
+
+        /* Mobile menu */
+        #mobile-menu {
+            max-height: 0; opacity: 0; overflow: hidden;
+            transition: max-height .45s ease, opacity .3s ease, padding .3s ease;
+            padding-top: 0; padding-bottom: 0;
+        }
+        #mobile-menu.open { max-height: 85vh; opacity: 1; padding-top: .5rem; padding-bottom: 1.25rem; overflow-y: auto; }
+        .mobile-link {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .8rem 1rem; border-radius: .9rem;
+            font-size: .95rem; font-weight: 600; color: #d1d5db;
+            transform: translateX(-14px); opacity: 0;
+            transition: transform .35s ease, opacity .35s ease, background .2s, color .2s;
+        }
+        #mobile-menu.open .mobile-link { transform: translateX(0); opacity: 1; }
+        #mobile-menu.open .mobile-link:nth-child(1) { transition-delay: .04s; }
+        #mobile-menu.open .mobile-link:nth-child(2) { transition-delay: .08s; }
+        #mobile-menu.open .mobile-link:nth-child(3) { transition-delay: .12s; }
+        #mobile-menu.open .mobile-link:nth-child(4) { transition-delay: .16s; }
+        #mobile-menu.open .mobile-link:nth-child(5) { transition-delay: .20s; }
+        #mobile-menu.open .mobile-link:nth-child(6) { transition-delay: .24s; }
+        #mobile-menu.open .mobile-link:nth-child(7) { transition-delay: .28s; }
+        #mobile-menu.open .mobile-link:nth-child(8) { transition-delay: .32s; }
+        @media (min-width: 1024px) and (max-width: 1279px) { .nav-link { padding: .5rem .7rem; } }
+        .mobile-link i { width: 2rem; height: 2rem; display: grid; place-items: center; border-radius: .6rem; background: rgba(139,92,246,.18); color: #C084FC; font-size: .85rem; }
+        .mobile-link:hover, .mobile-link.active { background: rgba(255,255,255,.07); color: #fff; }
+        .mobile-link.active { background: linear-gradient(135deg, rgba(139,92,246,.35), rgba(236,72,153,.3)); }
+        .mobile-link.active i { background: linear-gradient(135deg,#8B5CF6,#EC4899); color: #fff; }
+
+        .burger { width: 44px; height: 44px; border-radius: .9rem; display: grid; place-items: center; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
+        .burger span { display:block; width: 20px; height: 2px; background: #fff; border-radius: 2px; transition: transform .3s, opacity .3s; }
+        .burger span + span { margin-top: 5px; }
+        .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .burger.open span:nth-child(2) { opacity: 0; }
+        .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ================= FLOATING OBJECTS ================= */
+        .floating-bg-item { position: absolute; pointer-events: none; z-index: 0; will-change: transform; }
+        .fl-a { animation: flA 14s ease-in-out infinite; }
+        .fl-b { animation: flB 17s ease-in-out infinite; }
+        .fl-c { animation: flC 11s ease-in-out infinite; }
+        .fl-d { animation: flD 20s ease-in-out infinite; }
+        .fl-e { animation: flE 9s ease-in-out infinite; }
+        @keyframes flA {
+            0%   { transform: translate(0,0) rotate(0deg) scale(1); }
+            25%  { transform: translate(40px,-50px) rotate(90deg) scale(1.12); }
+            50%  { transform: translate(-20px,-90px) rotate(180deg) scale(.95); }
+            75%  { transform: translate(-50px,-30px) rotate(270deg) scale(1.08); }
+            100% { transform: translate(0,0) rotate(360deg) scale(1); }
+        }
+        @keyframes flB {
+            0%   { transform: translate(0,0) rotate(0deg); }
+            20%  { transform: translate(-45px,30px) rotate(-40deg) scale(1.1); }
+            50%  { transform: translate(30px,80px) rotate(30deg) scale(.9); }
+            80%  { transform: translate(55px,20px) rotate(-25deg) scale(1.1); }
+            100% { transform: translate(0,0) rotate(0deg); }
+        }
+        @keyframes flC {
+            0%,100% { transform: translateY(0) rotate(0deg) scale(1); }
+            33% { transform: translateY(-35px) rotate(15deg) scale(1.15); }
+            66% { transform: translateY(25px) rotate(-15deg) scale(.92); }
+        }
+        @keyframes flD {
+            0%   { transform: translate(0,0) rotate(0deg); }
+            25%  { transform: translate(-60px,-40px) rotate(120deg); }
+            50%  { transform: translate(-20px,60px) rotate(240deg) scale(1.15); }
+            75%  { transform: translate(50px,30px) rotate(300deg); }
+            100% { transform: translate(0,0) rotate(360deg); }
+        }
+        @keyframes flE {
+            0%,100% { transform: translate(0,0) scale(1); opacity: .35; }
+            50% { transform: translate(18px,-28px) scale(1.4); opacity: .8; }
+        }
+        .dot { width: 8px; height: 8px; border-radius: 9999px; background: linear-gradient(135deg,#C084FC,#EC4899); box-shadow: 0 0 14px rgba(192,132,252,.9); }
+
+        /* Phone adjustments */
+        @media (max-width: 640px) {
+            .floating-bg-item.fl-scale { transform-origin: center; scale: .7; }
+            .nav-glow-hide { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .fl-a,.fl-b,.fl-c,.fl-d,.fl-e,.logo-ring { animation: none !important; }
+        }
+
+        /* ================= MEDIA: VIDEOS & EXAMPLES ================= */
+        .video-card .thumb { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #0B0914; }
+        .video-card .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease, filter .3s; }
+        .video-card:hover .thumb img { transform: scale(1.08); filter: brightness(.75); }
+        .play-btn {
+            position: absolute; inset: 0; margin: auto; width: 62px; height: 62px; border-radius: 9999px;
+            display: grid; place-items: center; color: #fff; font-size: 1.35rem; padding-left: 4px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            box-shadow: 0 0 0 0 rgba(236,72,153,.6), 0 10px 30px rgba(139,92,246,.5);
+            animation: playPulse 2.2s infinite; transition: transform .25s;
+        }
+        .video-card:hover .play-btn { transform: scale(1.15); }
+        @keyframes playPulse { 0% { box-shadow: 0 0 0 0 rgba(236,72,153,.55), 0 10px 30px rgba(139,92,246,.5);} 70% { box-shadow: 0 0 0 18px rgba(236,72,153,0), 0 10px 30px rgba(139,92,246,.5);} 100% { box-shadow: 0 0 0 0 rgba(236,72,153,0), 0 10px 30px rgba(139,92,246,.5);} }
+        .media-tab { padding: .55rem 1.1rem; border-radius: 9999px; font-size: .75rem; font-weight: 700; color: #d1d5db; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); transition: all .25s; }
+        .media-tab:hover { color: #fff; background: rgba(255,255,255,.12); }
+        .media-tab.active { color: #fff; background: linear-gradient(135deg, #8B5CF6, #EC4899); border-color: transparent; box-shadow: 0 6px 20px rgba(139,92,246,.4); }
+        .example-card .ex-art { aspect-ratio: 20 / 13; background: #120e20; overflow: hidden; position: relative; }
+        .example-card .ex-art svg { width: 100%; height: 100%; display: block; transition: transform .5s ease; }
+        .example-card:hover .ex-art svg { transform: scale(1.06); }
+        .zoom-hint { position: absolute; right: .6rem; top: .6rem; width: 2.2rem; height: 2.2rem; border-radius: .7rem; display: grid; place-items: center; background: rgba(8,6,18,.75); color: #fff; font-size: .8rem; border: 1px solid rgba(255,255,255,.2); }
+        .lightbox { position: fixed; inset: 0; z-index: 70; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(4,2,12,.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .lightbox.open { display: flex; animation: lbIn .25s ease; }
+        @keyframes lbIn { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
+        .lb-art svg { width: 100%; height: auto; display: block; border-radius: 1rem; }
+        .lb-btn { width: 44px; height: 44px; border-radius: 9999px; display: grid; place-items: center; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); color: #fff; transition: background .2s, transform .2s; }
+        .lb-btn:hover { background: linear-gradient(135deg, #8B5CF6, #EC4899); transform: scale(1.08); }
+        body.modal-open { overflow: hidden; }
+    </style>
+</head>
+<body class="relative selection:bg-brand-purple selection:text-white min-h-screen">
+
+    <!-- FLOATING ANIMATED BACKGROUND OBJECTS -->
+    <div id="float-layer" class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-32 -left-32 w-72 h-72 sm:w-96 sm:h-96 bg-brand-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
+        <div class="absolute top-1/3 -right-32 w-80 h-80 sm:w-[30rem] sm:h-[30rem] bg-brand-magenta/15 rounded-full blur-3xl animate-pulse-glow" style="animation-delay: 1.5s;"></div>
+        <div class="absolute bottom-10 left-1/4 w-64 h-64 sm:w-80 sm:h-80 bg-brand-violet/20 rounded-full blur-3xl animate-pulse-glow" style="animation-delay: 2.5s;"></div>
+
+        <div class="floating-bg-item fl-scale fl-a top-[14%] left-[6%] opacity-50" data-depth="30">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-purple-600/30 to-pink-500/30 border border-purple-400/20 backdrop-blur-md flex items-center justify-center shadow-lg">
+                <i class="fa-solid fa-cube text-brand-purple text-xl sm:text-2xl"></i>
+            </div>
+        </div>
+        <div class="floating-bg-item fl-scale fl-b top-[26%] right-[6%] opacity-60" data-depth="-40">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-pink-500/20 to-indigo-600/30 border border-pink-400/20 backdrop-blur-md flex items-center justify-center shadow-xl">
+                <i class="fa-solid fa-network-wired text-brand-magenta text-2xl sm:text-3xl"></i>
+            </div>
+        </div>
+        <div class="floating-bg-item fl-scale fl-c top-[56%] left-[4%] opacity-40" data-depth="50">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-indigo-900/40 border border-indigo-400/30 backdrop-blur-md flex items-center justify-center">
+                <i class="fa-solid fa-database text-brand-violet text-lg sm:text-xl"></i>
+            </div>
+        </div>
+        <div class="floating-bg-item fl-scale fl-d top-[74%] right-[5%] opacity-50" data-depth="-25">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr from-purple-900/30 to-pink-900/40 border border-pink-500/20 backdrop-blur-md flex items-center justify-center">
+                <i class="fa-solid fa-microchip text-pink-400 text-3xl sm:text-4xl"></i>
+            </div>
+        </div>
+        <div class="floating-bg-item fl-scale fl-e top-[44%] right-[12%] opacity-40" data-depth="35">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-lg bg-purple-500/20 border border-purple-300/20 flex items-center justify-center">
+                <i class="fa-solid fa-brain text-purple-300"></i>
+            </div>
+        </div>
+        <div class="floating-bg-item fl-scale fl-b top-[8%] right-[30%] opacity-40" data-depth="-20">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/25 backdrop-blur-md flex items-center justify-center">
+                <i class="fa-solid fa-code text-emerald-300 text-sm"></i>
+            </div>
+        </div>
+        <div class="floating-bg-item fl-scale fl-a top-[85%] left-[22%] opacity-40" data-depth="45">
+            <div class="w-12 h-12 rounded-full bg-pink-500/15 border border-pink-400/25 backdrop-blur-md flex items-center justify-center">
+                <i class="fa-solid fa-wifi text-pink-300"></i>
+            </div>
+        </div>
+        <div class="floating-bg-item fl-scale fl-d top-[36%] left-[40%] opacity-25" data-depth="-35">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-300/20 backdrop-blur-md flex items-center justify-center">
+                <i class="fa-solid fa-shield-halved text-indigo-300"></i>
+            </div>
+        </div>
+        <!-- glowing particles -->
+        <div class="floating-bg-item fl-e dot top-[20%] left-[30%]"></div>
+        <div class="floating-bg-item fl-e dot top-[33%] left-[78%]" style="animation-delay:-3s"></div>
+        <div class="floating-bg-item fl-e dot top-[52%] left-[18%]" style="animation-delay:-5s"></div>
+        <div class="floating-bg-item fl-e dot top-[68%] left-[62%]" style="animation-delay:-2s"></div>
+        <div class="floating-bg-item fl-e dot top-[90%] left-[84%]" style="animation-delay:-6s"></div>
+        <div class="floating-bg-item fl-e dot top-[12%] left-[90%]" style="animation-delay:-4s"></div>
+    </div>
+
+    <!-- NAVIGATION BAR -->
+    <header id="site-nav" class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Logo -->
+                <a href="#overview" class="flex items-center space-x-3 min-w-0">
+                    <div class="logo-ring w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-brand-purple to-brand-magenta p-0.5 flex items-center justify-center shadow-lg shadow-brand-purple/30 shrink-0">
+                        <div class="w-full h-full bg-brand-dark rounded-[10px] flex items-center justify-center">
+                            <i class="fa-solid fa-laptop-code text-brand-accent text-lg"></i>
+                        </div>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="font-extrabold text-base sm:text-lg tracking-tight text-white block leading-none">InfoTech<span class="text-brand-magenta">.Edu</span></span>
+                        <span class="text-[9px] sm:text-[10px] font-semibold text-purple-300 tracking-wider uppercase">Intro to Computing</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden lg:flex items-center space-x-1 bg-brand-card/60 p-1.5 rounded-full border border-white/10">
+                    <a href="#overview" class="nav-link" data-spy="overview">Overview</a>
+                    <a href="#forms" class="nav-link" data-spy="forms">Forms</a>
+                    <a href="#data-vs-info" class="nav-link" data-spy="data-vs-info">Data vs Info</a>
+                    <a href="#decision-making" class="nav-link" data-spy="decision-making">Decision Making</a>
+                    <a href="#digital-era" class="nav-link" data-spy="digital-era">Digital Era</a>
+                    <a href="#media" class="nav-link flex items-center gap-1.5" data-spy="media"><i class="fa-solid fa-circle-play text-xs"></i> Videos</a>
+                    <a href="#reporter" class="nav-link" data-spy="reporter">Presenter</a>
+                    <a href="#activity" class="nav-link flex items-center gap-1.5" data-spy="activity"><i class="fa-solid fa-gamepad text-xs"></i> Activity</a>
+                </nav>
+
+                <div class="flex items-center gap-3">
+                    <a href="#reporter" class="hidden xl:flex px-5 py-2.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-magenta text-white font-semibold text-xs hover:shadow-lg hover:shadow-brand-purple/40 hover:scale-105 transition-all duration-300 items-center space-x-2">
+                        <i class="fa-solid fa-user-astronaut text-xs"></i>
+                        <span>Featured Reporter</span>
+                    </a>
+                    <button id="mobile-menu-btn" class="burger lg:hidden focus:outline-none" aria-label="Menu" aria-expanded="false">
+                        <div><span></span><span></span><span></span></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="lg:hidden px-4 border-t border-white/5">
+            <a href="#overview" class="mobile-link" data-spy="overview"><i class="fa-solid fa-house"></i>Overview</a>
+            <a href="#forms" class="mobile-link" data-spy="forms"><i class="fa-solid fa-layer-group"></i>Forms of Info</a>
+            <a href="#data-vs-info" class="mobile-link" data-spy="data-vs-info"><i class="fa-solid fa-scale-balanced"></i>Data vs Info</a>
+            <a href="#decision-making" class="mobile-link" data-spy="decision-making"><i class="fa-solid fa-bullseye"></i>Decision Making</a>
+            <a href="#digital-era" class="mobile-link" data-spy="digital-era"><i class="fa-solid fa-users-rays"></i>Digital Society</a>
+            <a href="#media" class="mobile-link" data-spy="media"><i class="fa-solid fa-circle-play"></i>Videos & Examples</a>
+            <a href="#reporter" class="mobile-link" data-spy="reporter"><i class="fa-solid fa-user-astronaut"></i>Featured Reporter</a>
+            <a href="#activity" class="mobile-link" data-spy="activity"><i class="fa-solid fa-gamepad"></i>Interactive Quiz</a>
+        </div>
+        <div id="scroll-progress"></div>
+    </header>
+
+    <main class="relative z-10 pt-16 sm:pt-20">
+
+        <!-- HERO SECTION -->
+        <section id="overview" class="min-h-[85vh] flex items-center justify-center relative py-12 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-5xl mx-auto text-center space-y-6 sm:space-y-8">
+
+                <div class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full glass-card border border-brand-purple/30 text-brand-accent text-[10px] sm:text-sm font-semibold tracking-wide uppercase shadow-lg shadow-purple-950/50">
+                    <span class="w-2 h-2 rounded-full bg-brand-magenta animate-ping"></span>
+                    <span>Introduction to Computers Presentation • Gayanan</span>
+                </div>
+
+                <h1 class="text-[2.1rem] leading-[1.1] sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white">
+                    Understanding <br class="hidden sm:inline"/>
+                    <span class="text-gradient">Information & Digital Society</span>
+                </h1>
+
+                <p class="max-w-3xl mx-auto text-sm sm:text-lg text-gray-300 leading-relaxed font-normal">
+                    Discover how raw data transforms into actionable information, powers strategic decision-making, and shapes our interconnected modern Digital Society.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4 max-w-sm sm:max-w-none mx-auto">
+                    <a href="#data-vs-info" class="px-8 py-4 rounded-full bg-gradient-to-r from-brand-purple via-indigo-600 to-brand-magenta text-white font-bold text-sm tracking-wide shadow-xl shadow-brand-purple/30 hover:shadow-brand-purple/60 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3">
+                        <span>Start Exploring</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a href="#reporter" class="px-8 py-4 rounded-full glass-card text-white font-semibold text-sm hover:bg-white/10 border border-white/20 transition-all duration-300 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-star text-brand-magenta"></i>
+                        <span>Featured Reporter</span>
+                    </a>
+                </div>
+
+                <div class="pt-8 sm:pt-12 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 text-left">
+                    <div class="glass-card p-4 sm:p-5 rounded-2xl glass-card-hover border-t-2 border-t-brand-purple">
+                        <div class="text-brand-accent text-2xl font-extrabold mb-1">10</div>
+                        <div class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider">Forms of Info</div>
+                    </div>
+                    <div class="glass-card p-4 sm:p-5 rounded-2xl glass-card-hover border-t-2 border-t-brand-magenta">
+                        <div class="text-pink-400 text-2xl font-extrabold mb-1">6</div>
+                        <div class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider">Decision Benefits</div>
+                    </div>
+                    <div class="glass-card p-4 sm:p-5 rounded-2xl glass-card-hover border-t-2 border-t-brand-violet">
+                        <div class="text-indigo-400 text-2xl font-extrabold mb-1">2</div>
+                        <div class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider">Modern Eras</div>
+                    </div>
+                    <div class="glass-card p-4 sm:p-5 rounded-2xl glass-card-hover border-t-2 border-t-emerald-400">
+                        <div class="text-emerald-400 text-2xl font-extrabold mb-1">100%</div>
+                        <div class="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wider">Interactive Relay</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- WHAT IS INFORMATION & OBJECTIVES SECTION -->
+        <section class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
+
+                <div class="lg:col-span-7 glass-card p-6 sm:p-10 rounded-3xl relative overflow-hidden flex flex-col justify-between border border-purple-500/20">
+                    <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-brand-purple/10 rounded-full blur-2xl"></div>
+                    <div class="relative">
+                        <div class="inline-flex items-center gap-2 text-brand-accent text-xs font-bold uppercase tracking-widest mb-4">
+                            <i class="fa-solid fa-lightbulb"></i> Core Definition
+                        </div>
+                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white mb-6">What is <span class="text-gradient">Information?</span></h2>
+                        <p class="text-gray-300 text-base sm:text-lg leading-relaxed mb-6">
+                            Information is data that has been <span class="text-brand-accent font-semibold">processed, organized, or presented</span> in a meaningful way so that it becomes useful and helps in understanding or decision-making.
+                        </p>
+                        <div class="p-4 rounded-2xl bg-brand-dark/80 border border-brand-purple/30 text-sm text-gray-300 space-y-2">
+                            <div class="text-xs font-bold text-brand-magenta uppercase tracking-wider"><i class="fa-solid fa-microchip mr-1"></i> In Computer Science:</div>
+                            <p>Information refers specifically to data that has been processed into a form that is meaningful and useful for human users or automated systems to make informed choices.</p>
+                        </div>
+                    </div>
+
+                    <div class="relative mt-8 pt-6 border-t border-white/10">
+                        <div class="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider text-center">Processing Pipeline</div>
+                        <div class="flex items-center justify-between text-center gap-1.5 sm:gap-2">
+                            <div class="flex-1 bg-white/5 p-2.5 sm:p-3 rounded-xl border border-white/10">
+                                <i class="fa-solid fa-cubes text-gray-400 text-lg mb-1 block"></i>
+                                <span class="text-[11px] sm:text-xs font-bold text-gray-300">Raw Data</span>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-brand-purple text-sm animate-pulse"></i>
+                            <div class="flex-1 bg-brand-purple/20 p-2.5 sm:p-3 rounded-xl border border-brand-purple/40">
+                                <i class="fa-solid fa-gears text-brand-accent text-lg mb-1 block animate-spin-slow"></i>
+                                <span class="text-[11px] sm:text-xs font-bold text-brand-accent">Processing</span>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-brand-purple text-sm animate-pulse"></i>
+                            <div class="flex-1 bg-brand-magenta/20 p-2.5 sm:p-3 rounded-xl border border-brand-magenta/40">
+                                <i class="fa-solid fa-chart-pie text-pink-300 text-lg mb-1 block"></i>
+                                <span class="text-[11px] sm:text-xs font-bold text-pink-300">Information</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 glass-card p-6 sm:p-10 rounded-3xl border border-pink-500/20 flex flex-col justify-between">
+                    <div>
+                        <div class="inline-flex items-center gap-2 text-brand-magenta text-xs font-bold uppercase tracking-widest mb-4">
+                            <i class="fa-solid fa-bullseye"></i> Scope & Goals
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white mb-6">Learning Objectives</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-brand-purple/30 text-brand-accent flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">1</div>
+                                <span class="text-sm text-gray-300">Understand the meaning and significance of information in modern computing.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-brand-purple/30 text-brand-accent flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">2</div>
+                                <span class="text-sm text-gray-300">Differentiate clearly between raw Data and processed Information.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-brand-purple/30 text-brand-accent flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">3</div>
+                                <span class="text-sm text-gray-300">Explore the 6 key reasons information is vital in strategic decision-making.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-brand-purple/30 text-brand-accent flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">4</div>
+                                <span class="text-sm text-gray-300">Compare the Information Age with today's Digital Society.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 p-4 rounded-2xl bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-purple-500/30 flex items-center gap-4">
+                        <i class="fa-solid fa-graduation-cap text-3xl text-brand-accent"></i>
+                        <div>
+                            <div class="text-xs font-bold text-white">Course Module</div>
+                            <div class="text-xs text-gray-400">BSIS / IT - Introduction to Computers</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 10 FORMS OF INFORMATION SECTION -->
+        <section id="forms" class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+                <span class="text-xs font-bold text-brand-accent uppercase tracking-widest block mb-2">Diverse Expressions</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">10 Forms of <span class="text-gradient">Information</span></h2>
+                <p class="text-gray-400 text-sm mt-2">Information can be represented and communicated through various channels and structures. Flip or hover cards to explore each form.</p>
+            </div>
+
+            <div class="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-purple-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-comments"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Oral Form</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Spoken words, speeches, voice notes, and verbal instructions given directly or recorded.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-pink-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-hands-asl-interpreting"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Sign Language</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Visual gestures, hand movements, and facial expressions used for silent communication.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-indigo-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-nib"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Hand-Written</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Manual pen-and-paper notes, physical letters, field logs, or handwritten scripts.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-emerald-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-image"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Pictorial Form</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Visual graphics, diagrams, illustrations, charts, maps, and photographs.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-blue-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-print"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Printed Form</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Hardcopy documents, books, newspapers, magazines, brochures, and reports.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-yellow-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-code"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Digitized Form</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Electronic data stored as 1s and 0s in computer storage, PDFs, cloud files, or web pages.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-teal-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-compress"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Condensed Form</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Summarized key takeaways, executive summaries, bullet points, or abstracts.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-fuchsia-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-key"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Coded Form</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Encrypted data, Morse code, barcodes, QR codes, or programming source code.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-rose-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Simplified Form</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Complex technical jargon converted into easy-to-understand layman's terms.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl glass-card-hover border-t-4 border-t-cyan-500 group">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-language"></i></div>
+                    <h3 class="text-base font-bold text-white mb-1">Translated Form</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Information converted from one human language or dialect to another for wider accessibility.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- DATA VS INFORMATION COMPARISON SECTION -->
+        <section id="data-vs-info" class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+                <span class="text-xs font-bold text-brand-magenta uppercase tracking-widest block mb-2">Core Distinction</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">Data <span class="text-gray-500">vs.</span> <span class="text-gradient">Information</span></h2>
+                <p class="text-gray-400 text-sm mt-2">Data is the raw material; Information is the finished, meaningful output.</p>
+            </div>
+
+            <div class="glass-card rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[560px] text-left border-collapse">
+                        <thead>
+                            <tr class="bg-brand-card/90 border-b border-white/10">
+                                <th class="p-4 sm:p-6 text-xs sm:text-sm font-bold text-gray-300 uppercase tracking-wider w-1/4">Feature</th>
+                                <th class="p-4 sm:p-6 text-xs sm:text-sm font-bold text-brand-purple uppercase tracking-wider"><i class="fa-solid fa-cube mr-2"></i>DATA</th>
+                                <th class="p-4 sm:p-6 text-xs sm:text-sm font-bold text-brand-magenta uppercase tracking-wider"><i class="fa-solid fa-chart-line mr-2"></i>INFORMATION</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 text-sm">
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="p-4 sm:p-5 font-semibold text-gray-300">Definition</td>
+                                <td class="p-4 sm:p-5 text-gray-400">Raw, unprocessed facts, figures, symbols, and unorganized observations.</td>
+                                <td class="p-4 sm:p-5 text-gray-200 font-medium">Organized, structured, and contextualized data that conveys meaning.</td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="p-4 sm:p-5 font-semibold text-gray-300">Context</td>
+                                <td class="p-4 sm:p-5 text-gray-400">Lacks context and may not make sense on its own.</td>
+                                <td class="p-4 sm:p-5 text-gray-200 font-medium">Provides clear context and directly helps in decision-making.</td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="p-4 sm:p-5 font-semibold text-gray-300">Role in Processing</td>
+                                <td class="p-4 sm:p-5 text-gray-400"><span class="px-2.5 py-1 rounded-md bg-purple-950/60 text-purple-300 border border-purple-800/40 text-xs font-bold">Input</span> for processing systems.</td>
+                                <td class="p-4 sm:p-5 text-gray-200 font-medium"><span class="px-2.5 py-1 rounded-md bg-pink-950/60 text-pink-300 border border-pink-800/40 text-xs font-bold">Output</span> generated after processing data.</td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="p-4 sm:p-5 font-semibold text-gray-300">Dependency</td>
+                                <td class="p-4 sm:p-5 text-gray-400">Does not depend on information.</td>
+                                <td class="p-4 sm:p-5 text-gray-200 font-medium">Directly depends on raw data to be generated.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="sm:hidden text-center text-[10px] text-gray-500 py-2 border-t border-white/5"><i class="fa-solid fa-arrows-left-right mr-1"></i> Swipe table sideways</div>
+
+                <div class="p-5 sm:p-8 bg-gradient-to-r from-purple-950/40 via-brand-dark to-pink-950/40 border-t border-white/10">
+                    <h4 class="text-xs font-bold text-brand-accent uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-vial"></i> Real PPT Presentation Examples
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="glass-card p-4 rounded-xl border border-purple-500/20">
+                            <div class="flex items-center justify-between mb-2"><span class="text-xs font-bold text-purple-400">Example 1: Class Attendance</span></div>
+                            <div class="space-y-2 text-xs">
+                                <div class="p-2 rounded bg-brand-dark text-gray-400"><strong class="text-purple-300">Data:</strong> "Attendance: Present, Absent, Present"</div>
+                                <div class="p-2 rounded bg-purple-900/30 text-gray-200"><strong class="text-pink-300">Information:</strong> "The student attended 90% of classes this semester."</div>
+                            </div>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl border border-pink-500/20">
+                            <div class="flex items-center justify-between mb-2"><span class="text-xs font-bold text-pink-400">Example 2: Store Sales</span></div>
+                            <div class="space-y-2 text-xs">
+                                <div class="p-2 rounded bg-brand-dark text-gray-400"><strong class="text-purple-300">Data:</strong> "Monday Sale: 7,500; 15 laptops sold"</div>
+                                <div class="p-2 rounded bg-pink-900/30 text-gray-200"><strong class="text-pink-300">Information:</strong> "Saturday was the busiest and highest revenue day of the week."</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- IMPORTANCE OF INFORMATION IN DECISION MAKING -->
+        <section id="decision-making" class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+                <span class="text-xs font-bold text-brand-accent uppercase tracking-widest block mb-2">Strategic Power</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">Importance of Information in <span class="text-gradient">Decision-Making</span></h2>
+                <p class="text-gray-400 text-sm mt-2">Accurate and relevant information reduces uncertainty, minimizes risk, and leads to better choices.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+
+                <div class="glass-card p-6 rounded-2xl glass-card-hover border border-purple-500/20 relative group overflow-hidden">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4 font-bold">1</div>
+                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-brand-accent transition-colors">Helps Make Better Decisions</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed mb-4">Reliable information allows people and organizations to evaluate factual evidence and select the optimal path forward.</p>
+                    <div class="p-3 rounded-xl bg-purple-950/50 border border-purple-800/30 text-xs">
+                        <div class="text-[10px] font-bold text-purple-300 uppercase mb-1"><i class="fa-solid fa-graduation-cap mr-1"></i> PPT Scenario:</div>
+                        <p class="text-gray-400 italic">"A student chooses a college course by reviewing interest, grades, job opportunities, & course requirements."</p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl glass-card-hover border border-pink-500/20 group">
+                    <div class="w-12 h-12 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl mb-4 font-bold">2</div>
+                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-pink-300 transition-colors">Reduces Uncertainty</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed">It provides clarity and deep insights into complex situations before committing time or capital, eliminating blind guesswork.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl glass-card-hover border border-indigo-500/20 group">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-4 font-bold">3</div>
+                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-300 transition-colors">Improves Planning</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed">Information allows organizations to set realistic short-term and long-term goals while designing actionable execution plans.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl glass-card-hover border border-emerald-500/20 group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4 font-bold">4</div>
+                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-emerald-300 transition-colors">Saves Time & Resources</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed">Having accurate info upfront prevents costly operational errors, avoids redundant work, and optimizes budget allocation.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl glass-card-hover border border-yellow-500/20 group">
+                    <div class="w-12 h-12 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-xl mb-4 font-bold">5</div>
+                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-yellow-300 transition-colors">Supports Problem-Solving</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed">Enables leaders to pinpoint root causes of operational challenges, systematically evaluate alternatives, and execute fixes.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl glass-card-hover border border-cyan-500/20 group">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-4 font-bold">6</div>
+                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">Measures Performance</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed">Serves as a quantitative baseline to evaluate outcomes, track KPIs, and refine future decision-making loops.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- INFORMATION AGE VS DIGITAL SOCIETY SECTION -->
+        <section id="digital-era" class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+                <span class="text-xs font-bold text-brand-purple uppercase tracking-widest block mb-2">Evolution of Tech</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">Information Age <span class="text-brand-magenta">&</span> Digital Society</h2>
+                <p class="text-gray-400 text-sm mt-2">Understanding how technological infrastructure evolved into today's digital lifestyle.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+
+                <div class="glass-card p-6 sm:p-8 rounded-3xl border border-purple-500/30 relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
+                    <div class="relative">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-white">Information Age</h3>
+                        </div>
+                        <p class="text-xs text-purple-300 font-bold uppercase tracking-wider mb-3">Era Driven by Information Technology</p>
+                        <p class="text-gray-300 text-sm leading-relaxed mb-6">The modern historical period in which information is created, stored, processed, and shared mainly through computers, the internet, and digital systems.</p>
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-3">Key Characteristics:</h4>
+                        <ul class="space-y-2.5 text-xs text-gray-300">
+                            <li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-check text-purple-400 mt-0.5"></i><span>Widespread adoption of computers and global internet.</span></li>
+                            <li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-check text-purple-400 mt-0.5"></i><span>Fast digital communication via email, messaging & social platforms.</span></li>
+                            <li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-check text-purple-400 mt-0.5"></i><span>Instant access to global knowledge anytime, anywhere.</span></li>
+                            <li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-check text-purple-400 mt-0.5"></i><span>Digital transformation across education, business & government.</span></li>
+                        </ul>
+                    </div>
+                    <div class="relative mt-8 pt-4 border-t border-white/10 text-xs text-purple-300 font-semibold flex items-center justify-between">
+                        <span>Focus: Information Creation & Flow</span>
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 sm:p-8 rounded-3xl border border-pink-500/30 relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl"></div>
+                    <div class="relative">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-users-rays"></i></div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-white">Digital Society</h3>
+                        </div>
+                        <p class="text-xs text-pink-300 font-bold uppercase tracking-wider mb-3">Community Dependent on Digital Life</p>
+                        <p class="text-gray-300 text-sm leading-relaxed mb-6">A society where people seamlessly integrate digital technologies and the internet into daily routines for communication, work, education, finance, and living.</p>
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-3">Key Characteristics:</h4>
+                        <ul class="space-y-2.5 text-xs text-gray-300">
+                            <li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-check text-pink-400 mt-0.5"></i><span>Online social communication & instant messaging apps.</span></li>
+                            <li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-check text-pink-400 mt-0.5"></i><span>Digital banking, e-commerce, and contactless transactions.</span></li>
+                            <li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-check text-pink-400 mt-0.5"></i><span>Remote learning, virtual classrooms, and work-from-home models.</span></li>
+                            <li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-check text-pink-400 mt-0.5"></i><span>Ubiquitous smart devices, e-government & telehealth services.</span></li>
+                        </ul>
+                    </div>
+                    <div class="relative mt-8 pt-4 border-t border-white/10 text-xs text-pink-300 font-semibold flex items-center justify-between">
+                        <span>Focus: Human Lifestyle & Behavior</span>
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- VIDEOS & EXAMPLES -->
+        <section id="media" class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-8">
+                <span class="text-xs font-bold text-brand-magenta uppercase tracking-widest block mb-2"><i class="fa-solid fa-circle-play mr-1"></i> Learn by Watching</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">Videos & <span class="text-gradient">Real-Life Examples</span></h2>
+                <p class="text-gray-400 text-sm mt-2">Tap a video to watch it right here, or tap a picture to view it bigger.</p>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 mb-10 flex-wrap" id="media-tabs">
+                <button class="media-tab active" data-tab="all"><i class="fa-solid fa-border-all mr-1.5"></i>All</button>
+                <button class="media-tab" data-tab="videos"><i class="fa-brands fa-youtube mr-1.5"></i>Videos</button>
+                <button class="media-tab" data-tab="examples"><i class="fa-solid fa-images mr-1.5"></i>Example Pictures</button>
+            </div>
+
+            <div id="video-block" class="mb-14">
+                <h3 class="text-sm font-bold text-brand-accent uppercase tracking-widest mb-5 flex items-center gap-2"><i class="fa-brands fa-youtube text-red-400 text-base"></i> Watch & Learn</h3>
+                <div id="video-grid" class="grid grid-cols-1 min-[560px]:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"></div>
+            </div>
+
+            <div id="example-block">
+                <h3 class="text-sm font-bold text-brand-accent uppercase tracking-widest mb-5 flex items-center gap-2"><i class="fa-solid fa-images text-pink-400 text-base"></i> Example Pictures</h3>
+                <div id="example-grid" class="grid grid-cols-1 min-[560px]:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"></div>
+            </div>
+        </section>
+
+        <!-- FEATURED REPORTER -->
+        <section id="reporter" class="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <span class="text-xs font-bold text-brand-magenta uppercase tracking-widest block mb-2"><i class="fa-solid fa-crown mr-1"></i> Presentation Lead</span>
+                <h2 class="text-3xl sm:text-5xl font-extrabold text-white">Featured <span class="text-gradient">Reporter</span></h2>
+                <p class="text-gray-400 text-sm mt-2">Solo presentation reporter.</p>
+            </div>
+
+            <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-12 border-2 border-brand-purple/40 relative overflow-hidden shadow-2xl shadow-purple-950/80">
+                <div class="absolute -top-24 -left-24 w-80 h-80 bg-brand-purple/25 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-brand-magenta/25 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+
+                    <div class="lg:col-span-5 flex flex-col items-center">
+                        <div class="relative w-44 h-44 sm:w-56 sm:h-56 rounded-full p-2 bg-gradient-to-tr from-brand-purple via-brand-magenta to-amber-400 shadow-2xl shadow-brand-purple/50 group">
+                            <div class="w-full h-full rounded-full overflow-hidden border-4 border-brand-dark relative">
+                                <img id="display-reporter-img" src="swe.png"
+                                     alt="Gayanan"
+                                     onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 300%22%3E%3Crect width=%22300%22 height=%22300%22 fill=%22%23161224%22/%3E%3Ctext x=%2250%25%22 y=%2255%25%22 font-size=%22120%22 font-family=%22Arial%22 font-weight=%22bold%22 fill=%22%238B5CF6%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3EG%3C/text%3E%3C/svg%3E'"
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gradient-to-r from-brand-purple to-brand-magenta text-white font-extrabold text-xs px-4 py-1.5 rounded-full border-2 border-brand-dark shadow-lg flex items-center gap-1.5">
+                                <i class="fa-solid fa-shield-halved text-amber-300"></i>
+                                <span>SOLO REPORTER</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 mt-8 flex-wrap justify-center">
+                            <span class="px-3 py-1 rounded-full bg-purple-950/80 border border-purple-500/30 text-purple-300 text-[11px] font-bold"><i class="fa-solid fa-graduation-cap mr-1"></i> BSIS</span>
+                            <span class="px-3 py-1 rounded-full bg-pink-950/80 border border-pink-500/30 text-pink-300 text-[11px] font-bold"><i class="fa-solid fa-laptop-code mr-1"></i> Presenter</span>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 space-y-5 text-center lg:text-left">
+                        <div>
+                            <div class="inline-flex items-center gap-2 text-brand-accent text-xs font-bold uppercase tracking-widest mb-1">
+                                <i class="fa-solid fa-award"></i> Official Lead Presenter
+                            </div>
+                            <h3 id="display-reporter-name" class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Gayanan</h3>
+                            <p id="display-reporter-title" class="text-base font-semibold text-brand-magenta mt-1">Lead Reporter & Subject Presenter</p>
+                            <p id="display-reporter-program" class="text-xs font-semibold text-gray-400">Course: Introduction to Computing • BSIS</p>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-brand-dark/70 border border-white/10 text-xs sm:text-sm text-gray-300 leading-relaxed space-y-2">
+                            <div class="text-[11px] font-bold text-brand-purple uppercase tracking-wider flex items-center gap-1.5 justify-center lg:justify-start">
+                                <i class="fa-solid fa-circle-info"></i> Presentation Focus:
+                            </div>
+                            <p id="display-reporter-bio">"Delivering an in-depth exploration of Information, Data vs Information processing, 10 Forms of Information, Importance of Information in Decision-Making, and the Digital Society."</p>
+                        </div>
+                           <div class="flex items-center space-x-3 text-gray-400 text-base">
+    <a href="https://www.facebook.com/cleokee.gayanan"
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Visit Facebook profile"
+       class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:text-white hover:bg-white/10 transition-colors">
+        <i class="fa-brands fa-facebook-f"></i>
+    </a>
+</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE ACTIVITY / GAME SECTION -->
+        <section id="activity" class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+            <div class="glass-card p-5 sm:p-12 rounded-3xl border border-brand-purple/40 relative overflow-hidden shadow-2xl">
+                <div class="text-center max-w-2xl mx-auto mb-8">
+                    <span class="px-3 py-1 rounded-full bg-brand-purple/30 text-brand-accent text-xs font-bold uppercase tracking-wider inline-block mb-3">Interactive Mini-Game</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Information Relay Game</h2>
+                    <p class="text-gray-300 text-sm mt-2">Classify each item from the presentation activity into <span class="text-purple-400 font-bold">DATA</span> or <span class="text-pink-400 font-bold">INFORMATION</span>!</p>
+                </div>
+
+                <div class="flex items-center justify-between bg-brand-dark/80 p-4 rounded-2xl border border-white/10 mb-8 text-xs font-bold">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-400">Progress:</span>
+                        <span id="game-progress" class="text-brand-accent">0 / 10</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-400">Score:</span>
+                        <span id="game-score" class="text-emerald-400 text-sm">0 Points</span>
+                    </div>
+                </div>
+
+                <div id="game-card" class="bg-gradient-to-br from-brand-card to-brand-dark p-6 sm:p-8 rounded-2xl border border-purple-500/30 text-center min-h-[160px] flex flex-col items-center justify-center mb-8 shadow-inner transition-all duration-300">
+                    <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Statement / Item</div>
+                    <div id="game-statement" class="text-base sm:text-xl font-bold text-white">"45 students are enrolled in BSIS Program"</div>
+                </div>
+
+                <div id="game-actions" class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 sm:gap-4">
+                    <button onclick="classifyItem('DATA')" class="py-4 rounded-2xl bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white font-bold text-base shadow-lg shadow-purple-900/40 hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-database"></i><span>DATA</span>
+                    </button>
+                    <button onclick="classifyItem('INFORMATION')" class="py-4 rounded-2xl bg-gradient-to-r from-pink-600 to-brand-magenta hover:from-pink-500 hover:to-pink-600 text-white font-bold text-base shadow-lg shadow-pink-900/40 hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-chart-pie"></i><span>INFORMATION</span>
+                    </button>
+                </div>
+
+                <div id="game-finished" class="hidden text-center py-6">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce"><i class="fa-solid fa-trophy"></i></div>
+                    <h3 class="text-2xl font-extrabold text-white mb-2">Activity Completed!</h3>
+                    <p id="final-score-text" class="text-gray-300 text-sm mb-6">You scored 10 out of 10 points!</p>
+                    <button onclick="restartGame()" class="px-8 py-3 rounded-full bg-gradient-to-r from-brand-purple to-brand-magenta text-white font-bold text-xs uppercase tracking-wider hover:scale-105 transition-all shadow-lg">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Play Again
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-12 sm:mt-20 border-t border-white/10 bg-brand-dark/90 text-gray-400 py-10 sm:py-12 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-purple to-brand-magenta p-0.5 flex items-center justify-center">
+                    <div class="w-full h-full bg-brand-dark rounded-[10px] flex items-center justify-center"><i class="fa-solid fa-laptop-code text-brand-accent text-sm"></i></div>
+                </div>
+                <span class="font-bold text-white text-sm">InfoTech Presentation</span>
+            </div>
+            <p class="text-xs text-gray-500 text-center">&copy; 2026 Intro to Computing Presentation Hub. Designed for Academic Excellence.</p>
+            <div class="flex items-center space-x-4 text-xs font-semibold text-gray-400">
+                <a href="#overview" class="hover:text-white transition-colors">Top</a>
+                <a href="#reporter" class="hover:text-white transition-colors">Reporter</a>
+                <a href="#activity" class="hover:text-white transition-colors">Activity</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- VIDEO MODAL -->
+    <div id="video-modal" class="lightbox" role="dialog" aria-modal="true" aria-label="Video player">
+        <div class="w-full max-w-4xl">
+            <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="min-w-0">
+                    <div id="vm-tag" class="text-[11px] font-bold text-brand-accent uppercase tracking-widest"></div>
+                    <h4 id="vm-title" class="text-sm sm:text-lg font-bold text-white leading-snug"></h4>
+                </div>
+                <button class="lb-btn shrink-0" onclick="closeVideo()" aria-label="Close video"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="relative w-full rounded-2xl overflow-hidden border border-white/15 bg-black shadow-2xl shadow-purple-900/50" style="aspect-ratio:16/9">
+                <iframe id="vm-frame" class="absolute inset-0 w-full h-full" src="" title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <div class="mt-3 flex items-center justify-between gap-3 text-xs">
+                <span class="text-gray-400">Dili mo-play? Ablihi sa YouTube.</span>
+                <a id="vm-link" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold flex items-center gap-2"><i class="fa-brands fa-youtube text-red-400"></i> Open on YouTube</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMAGE LIGHTBOX -->
+    <div id="img-modal" class="lightbox" role="dialog" aria-modal="true" aria-label="Example picture viewer">
+        <div class="w-full max-w-3xl">
+            <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="min-w-0">
+                    <div id="lb-tag" class="text-[11px] font-bold text-brand-accent uppercase tracking-widest"></div>
+                    <h4 id="lb-title" class="text-sm sm:text-lg font-bold text-white leading-snug"></h4>
+                </div>
+                <button class="lb-btn shrink-0" onclick="closeImage()" aria-label="Close picture"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="lb-art" class="lb-art border border-white/15 rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/50"></div>
+            <p id="lb-caption" class="text-xs sm:text-sm text-gray-300 mt-3 leading-relaxed"></p>
+            <div class="mt-4 flex items-center justify-between">
+                <button class="lb-btn" onclick="stepImage(-1)" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+                <span id="lb-count" class="text-xs font-bold text-gray-400"></span>
+                <button class="lb-btn" onclick="stepImage(1)" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT REPORTER MODAL -->
+    <div id="edit-modal" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-card max-w-md w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 rounded-3xl border border-brand-purple/40 relative my-auto">
+            <button onclick="closeEditModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white w-9 h-9 grid place-items-center" aria-label="Close">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-lg sm:text-xl font-bold text-white mb-4 flex items-center gap-2 pr-8">
+                <i class="fa-solid fa-user-pen text-brand-magenta"></i> Customize Solo Reporter Profile
+            </h3>
+
+            <form id="edit-reporter-form" onsubmit="saveReporterChanges(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">Reporter Name</label>
+                    <input type="text" id="edit-name" required class="w-full bg-brand-dark border border-white/15 rounded-xl p-3 text-base sm:text-xs text-white focus:outline-none focus:border-brand-purple">
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">Title / Designation</label>
+                    <input type="text" id="edit-title" required class="w-full bg-brand-dark border border-white/15 rounded-xl p-3 text-base sm:text-xs text-white focus:outline-none focus:border-brand-purple">
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">Program / Section</label>
+                    <input type="text" id="edit-program" required class="w-full bg-brand-dark border border-white/15 rounded-xl p-3 text-base sm:text-xs text-white focus:outline-none focus:border-brand-purple">
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">Presentation Focus / Bio</label>
+                    <textarea id="edit-bio" rows="3" required class="w-full bg-brand-dark border border-white/15 rounded-xl p-3 text-base sm:text-xs text-white focus:outline-none focus:border-brand-purple"></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">Profile Photo URL</label>
+                    <input type="text" id="edit-img" placeholder="https://..." class="w-full bg-brand-dark border border-white/15 rounded-xl p-3 text-base sm:text-xs text-white focus:outline-none focus:border-brand-purple">
+                </div>
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2.5 rounded-xl bg-white/10 text-gray-300 font-semibold hover:bg-white/20">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-purple to-brand-magenta text-white font-bold hover:opacity-90">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- NAV: MOBILE MENU ---
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        function setMenu(open) {
+            mobileMenu.classList.toggle('open', open);
+            mobileBtn.classList.toggle('open', open);
+            mobileBtn.setAttribute('aria-expanded', open);
+        }
+        mobileBtn.addEventListener('click', () => setMenu(!mobileMenu.classList.contains('open')));
+        document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => setMenu(false)));
+
+        // --- NAV: SCROLL PROGRESS + SHADOW ---
+        const nav = document.getElementById('site-nav');
+        const bar = document.getElementById('scroll-progress');
+        function onScroll() {
+            const h = document.documentElement.scrollHeight - window.innerHeight;
+            bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+            nav.classList.toggle('scrolled', window.scrollY > 20);
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // --- NAV: ACTIVE SECTION HIGHLIGHT ---
+        const spyLinks = document.querySelectorAll('[data-spy]');
+        const spy = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    spyLinks.forEach(l => l.classList.toggle('active', l.dataset.spy === e.target.id));
+                }
+            });
+        }, { rootMargin: '-35% 0px -55% 0px' });
+        ['overview','forms','data-vs-info','decision-making','digital-era','media','reporter','activity']
+            .forEach(id => { const el = document.getElementById(id); if (el) spy.observe(el); });
+
+        // --- FLOATING OBJECTS: SCROLL PARALLAX ---
+        const floaters = document.querySelectorAll('#float-layer [data-depth]');
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                const y = window.scrollY;
+                floaters.forEach(el => {
+                    const d = parseFloat(el.dataset.depth);
+                    el.style.translate = `0 ${(y * d) / 100 * -1}px`;
+                });
+                ticking = false;
+            });
+        }, { passive: true });
+
+        // --- REPORTER STATE & EDIT MODAL ---
+        let soloReporter = {
+            name: "Cleo Kee A. Gayanan",
+            title: "Lead Reporter & Subject Presenter",
+            program: "Course: Introduction to Computing • BSIS",
+            bio: "Delivering an in-depth exploration of Information, Data vs Information processing, 10 Forms of Information, Importance of Information in Decision-Making, and the Digital Society.",
+            avatar: "swe.png"
+        };
+
+        function updateReporterDisplay() {
+            document.getElementById('display-reporter-name').innerText = soloReporter.name;
+            document.getElementById('display-reporter-title').innerText = soloReporter.title;
+            document.getElementById('display-reporter-program').innerText = soloReporter.program;
+            document.getElementById('display-reporter-bio').innerText = `"${soloReporter.bio}"`;
+            document.getElementById('display-reporter-img').src = soloReporter.avatar;
+        }
+        function openEditModal() {
+            document.getElementById('edit-name').value = soloReporter.name;
+            document.getElementById('edit-title').value = soloReporter.title;
+            document.getElementById('edit-program').value = soloReporter.program;
+            document.getElementById('edit-bio').value = soloReporter.bio;
+            document.getElementById('edit-img').value = soloReporter.avatar;
+            const m = document.getElementById('edit-modal');
+            m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function closeEditModal() {
+            const m = document.getElementById('edit-modal');
+            m.classList.add('hidden'); m.classList.remove('flex');
+        }
+        function saveReporterChanges(e) {
+            e.preventDefault();
+            soloReporter.name = document.getElementById('edit-name').value;
+            soloReporter.title = document.getElementById('edit-title').value;
+            soloReporter.program = document.getElementById('edit-program').value;
+            soloReporter.bio = document.getElementById('edit-bio').value;
+            const newImg = document.getElementById('edit-img').value;
+            if (newImg.trim() !== '') soloReporter.avatar = newImg;
+            updateReporterDisplay();
+            closeEditModal();
+        }
+
+        // --- INTERACTIVE ACTIVITY / MINI-GAME ---
+        const quizItems = [
+            { text: "45 students are enrolled in BSIS Program", type: "INFORMATION" },
+            { text: "BSIS 3 has the highest enrollment among all Programs", type: "INFORMATION" },
+            { text: "Anna is the top scorer in the class", type: "INFORMATION" },
+            { text: "Attendance: Present, Absent, Present", type: "DATA" },
+            { text: "Monday Sale: 7,500", type: "DATA" },
+            { text: "15, 20, 100, 0", type: "DATA" },
+            { text: "Saturday was the busiest day of the week", type: "INFORMATION" },
+            { text: "Temperature today is 34 degrees", type: "DATA" },
+            { text: "Heavy rainfall caused flooding in some low-lying areas", type: "INFORMATION" },
+            { text: "Most students finished the quiz before the time limit", type: "INFORMATION" }
+        ];
+        let currentQuizIndex = 0;
+        let score = 0;
+        let locked = false;
+
+        function updateQuizUI() {
+            document.getElementById('game-progress').innerText = `${currentQuizIndex} / ${quizItems.length}`;
+            if (currentQuizIndex < quizItems.length) {
+                document.getElementById('game-score').innerText = `${score} Points`;
+                document.getElementById('game-statement').innerText = `"${quizItems[currentQuizIndex].text}"`;
+            } else {
+                document.getElementById('game-card').classList.add('hidden');
+                document.getElementById('game-actions').classList.add('hidden');
+                document.getElementById('game-finished').classList.remove('hidden');
+                document.getElementById('final-score-text').innerText = `You scored ${score} out of ${quizItems.length} points!`;
+                if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+        }
+        function classifyItem(userChoice) {
+            if (locked) return;
+            locked = true;
+            const currentItem = quizItems[currentQuizIndex];
+            const gameCard = document.getElementById('game-card');
+            if (userChoice === currentItem.type) {
+                score++;
+                gameCard.classList.add('border-emerald-500', 'bg-emerald-950/30');
+            } else {
+                gameCard.classList.add('border-rose-500', 'bg-rose-950/30');
+            }
+            setTimeout(() => {
+                gameCard.classList.remove('border-emerald-500', 'bg-emerald-950/30', 'border-rose-500', 'bg-rose-950/30');
+                currentQuizIndex++;
+                locked = false;
+                updateQuizUI();
+            }, 400);
+        }
+        function restartGame() {
+            currentQuizIndex = 0; score = 0; locked = false;
+            document.getElementById('game-card').classList.remove('hidden');
+            document.getElementById('game-actions').classList.remove('hidden');
+            document.getElementById('game-finished').classList.add('hidden');
+            updateQuizUI();
+        }
+
+        // ================= VIDEOS & EXAMPLE PICTURES =================
+        // Para mag-ilis og video: usba lang ang "id" (ang letra/numero human sa v= sa YouTube link).
+        const videos = [
+            { id: 'kkBe_QyRbns', tag: 'Data vs Information', title: 'Data vs Information: The Key Difference Explained!', desc: 'Simple nga pagpasabot kung unsa ang lahi sa raw data ug sa processed information.' },
+            { id: 'ytkVmSlkPeI', tag: 'Data vs Information', title: "What's the difference between data and information?", desc: 'Dugang nga pananglitan aron klaro ang lahi sa data ug information.' },
+            { id: '5vVx6jpLC04', tag: 'Forms of Information', title: 'Every Type Of Communication (Explained in 3 Minutes)', desc: 'Mga paagi sa pagpaambit sa impormasyon: oral, written, visual, ug uban pa.' },
+            { id: '-4iIC5xsiGM', tag: 'Decision-Making', title: 'What is Data-driven decision making? 6 key steps, Importance, Tools & Techniques', desc: 'Giunsa pag-gamit ang information aron makahimo og mas maayong desisyon.' },
+            { id: '57X49fmC0qg', tag: 'Information Age', title: 'Information Age', desc: 'Unsa ang Information Age, kanus-a nisugod, ug unsay epekto niini sa edukasyon ug katilingban.' },
+            { id: 'GsB1f5uoGWc', tag: 'Digital Society', title: 'What Is Digital Transformation Explained In Less Than 90 Seconds', desc: 'Mubo nga pagpasabot kung giunsa pag-usab sa digital technology ang atong kinabuhi ug negosyo.' }
+        ];
+
+        const FONT = "font-family=\"'Plus Jakarta Sans', Arial, sans-serif\"";
+        const wrap = inner => `<svg viewBox="0 0 600 390" xmlns="http://www.w3.org/2000/svg" role="img" ${FONT}><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8B5CF6"/><stop offset="1" stop-color="#EC4899"/></linearGradient></defs><rect width="600" height="390" fill="#161224"/><circle cx="560" cy="30" r="90" fill="#8B5CF6" opacity=".12"/><circle cx="40" cy="370" r="100" fill="#EC4899" opacity=".1"/>${inner}</svg>`;
+        const uid = (svg, tag) => svg.replace(/g1/g, 'g1' + tag); // unique gradient ids so hidden tabs/lightbox render correctly
+        const arrow = (x, y) => `<g><line x1="${x}" y1="${y}" x2="${x + 52}" y2="${y}" stroke="#EC4899" stroke-width="5" stroke-linecap="round"/><polygon points="${x + 44},${y - 12} ${x + 66},${y} ${x + 44},${y + 12}" fill="#EC4899"/></g>`;
+
+        const examples = [
+            {
+                tag: 'Data vs Information', title: 'Example 1: Class Attendance',
+                caption: 'Data: "Attendance: Present, Absent, Present." Kung i-process kini, ang Information kay: "The student attended 90% of classes this semester."',
+                svg: wrap(`
+                    <text x="40" y="52" font-size="18" font-weight="800" fill="#A78BFA">DATA</text>
+                    <rect x="40" y="75" width="170" height="60" rx="14" fill="#2a2145" stroke="#8B5CF6" stroke-width="2"/><text x="125" y="112" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">Present</text>
+                    <rect x="40" y="155" width="170" height="60" rx="14" fill="#2a2145" stroke="#8B5CF6" stroke-width="2"/><text x="125" y="192" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">Absent</text>
+                    <rect x="40" y="235" width="170" height="60" rx="14" fill="#2a2145" stroke="#8B5CF6" stroke-width="2"/><text x="125" y="272" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">Present</text>
+                    <text x="238" y="150" font-size="12" font-weight="700" fill="#F9A8D4">PROCESS</text>
+                    ${arrow(228, 175)}
+                    <text x="440" y="52" font-size="18" font-weight="800" fill="#F472B6" text-anchor="middle">INFORMATION</text>
+                    <circle cx="440" cy="190" r="80" fill="none" stroke="#2a2145" stroke-width="22"/>
+                    <circle cx="440" cy="190" r="80" fill="none" stroke="url(#g1)" stroke-width="22" stroke-linecap="round" stroke-dasharray="452.4 502.65" transform="rotate(-90 440 190)"/>
+                    <text x="440" y="203" font-size="44" font-weight="800" fill="#fff" text-anchor="middle">90%</text>
+                    <text x="440" y="318" font-size="14" fill="#d1d5db" text-anchor="middle">attended this semester</text>`)
+            },
+            {
+                tag: 'Data vs Information', title: 'Example 2: Store Sales',
+                caption: 'Data: ang sales matag adlaw (pananglitan Monday: 7,500; 15 laptops). Information: "Saturday was the busiest and highest revenue day of the week."',
+                svg: (() => {
+                    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    const vals = [7.5, 6, 8, 9, 11, 16, 12];
+                    const bars = days.map((d, i) => {
+                        const h = vals[i] * 14, x = 52 + i * 74, y = 320 - h, hi = d === 'Sat';
+                        return `<rect x="${x}" y="${y}" width="50" height="${h}" rx="10" fill="${hi ? 'url(#g1)' : '#3b2f66'}"/>
+                            <text x="${x + 25}" y="${y - 8}" font-size="12" font-weight="700" fill="${hi ? '#F9A8D4' : '#9ca3af'}" text-anchor="middle">${vals[i]}k</text>
+                            <text x="${x + 25}" y="342" font-size="13" font-weight="700" fill="${hi ? '#fff' : '#9ca3af'}" text-anchor="middle">${d}</text>`;
+                    }).join('');
+                    return wrap(`
+                        <text x="40" y="42" font-size="16" font-weight="800" fill="#A78BFA">DATA: daily sales</text>
+                        <line x1="40" y1="320" x2="570" y2="320" stroke="#4b3f7a" stroke-width="2"/>
+                        ${bars}
+                        <rect x="40" y="66" width="240" height="54" rx="14" fill="#3b1d4a" stroke="#EC4899" stroke-width="2"/>
+                        <text x="160" y="89" font-size="12" font-weight="800" fill="#F472B6" text-anchor="middle">INFORMATION</text>
+                        <text x="160" y="108" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Saturday = highest revenue</text>`);
+                })()
+            },
+            {
+                tag: 'Data vs Information', title: 'Example 3: Temperature Today',
+                caption: 'Data: "Temperature today is 34 degrees." Kung gihatagan og kahulogan (context), mahimo kining Information: init kaayo ang adlaw, mag-dala og tubig ug likayi ang udto nga adlaw.',
+                svg: wrap(`
+                    <text x="40" y="52" font-size="18" font-weight="800" fill="#A78BFA">DATA</text>
+                    <rect x="70" y="80" width="40" height="190" rx="20" fill="#2a2145" stroke="#8B5CF6" stroke-width="3"/>
+                    <rect x="82" y="130" width="16" height="140" rx="8" fill="url(#g1)"/>
+                    <circle cx="90" cy="288" r="34" fill="url(#g1)"/>
+                    <text x="200" y="195" font-size="64" font-weight="800" fill="#fff">34°C</text>
+                    <text x="203" y="225" font-size="14" fill="#9ca3af">Temperature today</text>
+                    ${arrow(250, 285)}
+                    <rect x="340" y="250" width="230" height="110" rx="16" fill="#3b1d4a" stroke="#EC4899" stroke-width="2"/>
+                    <text x="455" y="278" font-size="13" font-weight="800" fill="#F472B6" text-anchor="middle">INFORMATION</text>
+                    <text x="455" y="306" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Very hot day</text>
+                    <text x="455" y="330" font-size="13" fill="#d1d5db" text-anchor="middle">Bring water, avoid noon sun</text>`)
+            },
+            {
+                tag: 'Decision-Making', title: 'Example 4: Choosing a College Course',
+                caption: 'Ang estudyante mo-review sa interes, grado, job opportunities, ug course requirements una mamili. Information ang nagdala sa mas maayong desisyon.',
+                svg: wrap(`
+                    <g stroke="#8B5CF6" stroke-width="3" opacity=".7"><line x1="195" y1="100" x2="255" y2="165"/><line x1="405" y1="100" x2="345" y2="165"/><line x1="195" y1="290" x2="255" y2="225"/><line x1="405" y1="290" x2="345" y2="225"/></g>
+                    <circle cx="300" cy="195" r="62" fill="url(#g1)"/>
+                    <text x="300" y="190" font-size="15" font-weight="800" fill="#fff" text-anchor="middle">Choose a</text>
+                    <text x="300" y="210" font-size="15" font-weight="800" fill="#fff" text-anchor="middle">Course</text>
+                    <rect x="25" y="72" width="170" height="56" rx="14" fill="#2a2145" stroke="#A78BFA" stroke-width="2"/><text x="110" y="107" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">Interest</text>
+                    <rect x="405" y="72" width="170" height="56" rx="14" fill="#2a2145" stroke="#F472B6" stroke-width="2"/><text x="490" y="107" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">Grades</text>
+                    <rect x="25" y="262" width="170" height="56" rx="14" fill="#2a2145" stroke="#34D399" stroke-width="2"/><text x="110" y="297" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Job Opportunities</text>
+                    <rect x="405" y="262" width="170" height="56" rx="14" fill="#2a2145" stroke="#FBBF24" stroke-width="2"/><text x="490" y="297" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Course Requirements</text>
+                    <text x="300" y="360" font-size="14" font-weight="700" fill="#F9A8D4" text-anchor="middle">Better information = better decision</text>`)
+            },
+            {
+                tag: 'Forms of Information', title: 'Example 5: 10 Forms of Information',
+                caption: 'Ang information makita sa daghang porma: oral, sign language, hand-written, pictorial, printed, digitized, condensed, coded, simplified, ug translated.',
+                svg: (() => {
+                    const items = [['🗣️', 'Oral'], ['🤟', 'Sign Language'], ['✍️', 'Hand-Written'], ['🖼️', 'Pictorial'], ['🖨️', 'Printed'], ['💾', 'Digitized'], ['📝', 'Condensed'], ['🔑', 'Coded'], ['✨', 'Simplified'], ['🌐', 'Translated']];
+                    const cols = ['#A78BFA', '#F472B6', '#818CF8', '#34D399', '#60A5FA', '#FBBF24', '#2DD4BF', '#E879F9', '#FB7185', '#22D3EE'];
+                    const chips = items.map((it, i) => {
+                        const col = i % 2, row = Math.floor(i / 2), x = 40 + col * 270, y = 66 + row * 63;
+                        return `<rect x="${x}" y="${y}" width="250" height="50" rx="14" fill="#2a2145" stroke="${cols[i]}" stroke-width="2"/>
+                            <text x="${x + 20}" y="${y + 33}" font-size="22">${it[0]}</text>
+                            <text x="${x + 58}" y="${y + 32}" font-size="16" font-weight="700" fill="#fff">${it[1]}</text>`;
+                    }).join('');
+                    return wrap(`<text x="300" y="40" font-size="17" font-weight="800" fill="#C084FC" text-anchor="middle">10 FORMS OF INFORMATION</text>${chips}`);
+                })()
+            },
+            {
+                tag: 'Information Age & Digital Society', title: 'Example 6: From Information Age to Digital Society',
+                caption: 'Ang Information Age nakapunting sa paghimo ug pagpadagan sa information (computers, internet). Ang Digital Society nakapunting na sa pamaagi sa pagkinabuhi sa tawo gamit ang digital technology.',
+                svg: (() => {
+                    const nodes = [['💻', 'Computers'], ['🌐', 'Internet'], ['📱', 'Smart devices'], ['🏦', 'Digital life']];
+                    const xs = [90, 230, 370, 510];
+                    const n = nodes.map((nd, i) => `<circle cx="${xs[i]}" cy="170" r="42" fill="#2a2145" stroke="${i < 2 ? '#8B5CF6' : '#EC4899'}" stroke-width="3"/>
+                        <text x="${xs[i]}" y="182" font-size="34" text-anchor="middle">${nd[0]}</text>
+                        <text x="${xs[i]}" y="240" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">${nd[1]}</text>`).join('');
+                    return wrap(`
+                        <line x1="90" y1="170" x2="510" y2="170" stroke="#4b3f7a" stroke-width="4" stroke-dasharray="8 8"/>
+                        ${n}
+                        <path d="M60 272 H260" stroke="#8B5CF6" stroke-width="5" stroke-linecap="round"/><text x="160" y="302" font-size="14" font-weight="800" fill="#A78BFA" text-anchor="middle">INFORMATION AGE</text>
+                        <path d="M340 272 H540" stroke="#EC4899" stroke-width="5" stroke-linecap="round"/><text x="440" y="302" font-size="14" font-weight="800" fill="#F472B6" text-anchor="middle">DIGITAL SOCIETY</text>
+                        <text x="300" y="52" font-size="17" font-weight="800" fill="#C084FC" text-anchor="middle">EVOLUTION OF TECHNOLOGY</text>`);
+                })()
+            }
+        ];
+
+        // ---- render video cards ----
+        const videoGrid = document.getElementById('video-grid');
+        videoGrid.innerHTML = videos.map((v, i) => `
+            <button type="button" class="video-card glass-card glass-card-hover rounded-2xl overflow-hidden text-left border border-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple" onclick="openVideo(${i})" aria-label="Play video: ${v.title.replace(/"/g, '&quot;')}">
+                <div class="thumb">
+                    <img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="" loading="lazy" onerror="this.style.display='none'">
+                    <span class="play-btn"><i class="fa-solid fa-play"></i></span>
+                    <span class="absolute left-3 bottom-3 px-2.5 py-1 rounded-full bg-black/70 text-[10px] font-bold text-white flex items-center gap-1.5"><i class="fa-brands fa-youtube text-red-400"></i> YouTube</span>
+                </div>
+                <div class="p-4 sm:p-5">
+                    <div class="text-[10px] font-bold text-brand-accent uppercase tracking-widest mb-1">${v.tag}</div>
+                    <h4 class="text-sm font-bold text-white leading-snug mb-2">${v.title}</h4>
+                    <p class="text-xs text-gray-400 leading-relaxed">${v.desc}</p>
+                </div>
+            </button>`).join('');
+
+        // ---- render example cards ----
+        const exampleGrid = document.getElementById('example-grid');
+        exampleGrid.innerHTML = examples.map((e, i) => `
+            <button type="button" class="example-card glass-card glass-card-hover rounded-2xl overflow-hidden text-left border border-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple" onclick="openImage(${i})" aria-label="View picture: ${e.title}">
+                <div class="ex-art">${uid(e.svg, 'c' + i)}<span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i></span></div>
+                <div class="p-4 sm:p-5">
+                    <div class="text-[10px] font-bold text-pink-300 uppercase tracking-widest mb-1">${e.tag}</div>
+                    <h4 class="text-sm font-bold text-white leading-snug">${e.title}</h4>
+                    <p class="text-[11px] text-gray-500 mt-2"><i class="fa-solid fa-hand-pointer mr-1"></i>Tap to enlarge</p>
+                </div>
+            </button>`).join('');
+
+        // ---- tabs ----
+        document.querySelectorAll('#media-tabs .media-tab').forEach(btn => btn.addEventListener('click', () => {
+            document.querySelectorAll('#media-tabs .media-tab').forEach(b => b.classList.toggle('active', b === btn));
+            const t = btn.dataset.tab;
+            document.getElementById('video-block').style.display = (t === 'all' || t === 'videos') ? '' : 'none';
+            document.getElementById('example-block').style.display = (t === 'all' || t === 'examples') ? '' : 'none';
+        }));
+
+        // ---- video modal ----
+        const videoModal = document.getElementById('video-modal');
+        function openVideo(i) {
+            const v = videos[i];
+            document.getElementById('vm-tag').textContent = v.tag;
+            document.getElementById('vm-title').textContent = v.title;
+            document.getElementById('vm-link').href = 'https://www.youtube.com/watch?v=' + v.id;
+            document.getElementById('vm-frame').src = 'https://www.youtube-nocookie.com/embed/' + v.id + '?autoplay=1&rel=0&playsinline=1';
+            videoModal.classList.add('open');
+            document.body.classList.add('modal-open');
+        }
+        function closeVideo() {
+            document.getElementById('vm-frame').src = '';
+            videoModal.classList.remove('open');
+            if (!imgModal.classList.contains('open')) document.body.classList.remove('modal-open');
+        }
+        videoModal.addEventListener('click', e => { if (e.target === videoModal) closeVideo(); });
+
+        // ---- image lightbox ----
+        const imgModal = document.getElementById('img-modal');
+        let currentImg = 0;
+        function renderImage() {
+            const e = examples[currentImg];
+            document.getElementById('lb-tag').textContent = e.tag;
+            document.getElementById('lb-title').textContent = e.title;
+            document.getElementById('lb-art').innerHTML = uid(e.svg, 'lb');
+            document.getElementById('lb-caption').textContent = e.caption;
+            document.getElementById('lb-count').textContent = (currentImg + 1) + ' / ' + examples.length;
+        }
+        function openImage(i) {
+            currentImg = i; renderImage();
+            imgModal.classList.add('open');
+            document.body.classList.add('modal-open');
+        }
+        function closeImage() {
+            imgModal.classList.remove('open');
+            if (!videoModal.classList.contains('open')) document.body.classList.remove('modal-open');
+        }
+        function stepImage(d) {
+            currentImg = (currentImg + d + examples.length) % examples.length;
+            renderImage();
+        }
+        imgModal.addEventListener('click', e => { if (e.target === imgModal) closeImage(); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { closeVideo(); closeImage(); }
+            if (imgModal.classList.contains('open')) {
+                if (e.key === 'ArrowRight') stepImage(1);
+                if (e.key === 'ArrowLeft') stepImage(-1);
+            }
+        });
+        // swipe left/right on the picture viewer (phone)
+        let touchX = null;
+        imgModal.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+        imgModal.addEventListener('touchend', e => {
+            if (touchX === null) return;
+            const dx = e.changedTouches[0].clientX - touchX;
+            if (Math.abs(dx) > 50) stepImage(dx < 0 ? 1 : -1);
+            touchX = null;
+        });
+
+        window.addEventListener('load', () => { updateReporterDisplay(); updateQuizUI(); });
+    </script>
+</body>
+</html>
